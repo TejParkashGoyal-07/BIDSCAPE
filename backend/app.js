@@ -1,4 +1,6 @@
 import { config } from "dotenv";
+config();  // This should load environment variables from .env
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -12,6 +14,12 @@ import commissionRouter from "./router/commissionRouter.js";
 import superAdminRouter from "./router/superAdminRoutes.js";
 import { endedAuctionCron } from "./automation/endedAuctionCron.js";
 import { verifyCommissionCron } from "./automation/verifyCommissionCron.js";
+import path from "path";
+import { fileURLToPath } from "url"; // <-- Use this to handle dirname properly
+
+// Convert the file URL to path and get the current directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 config({
@@ -36,15 +44,27 @@ app.use(
   })
 );
 
+// Register routes
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/auctionitem", auctionItemRouter);
 app.use("/api/v1/bid", bidRouter);
 app.use("/api/v1/commission", commissionRouter);
 app.use("/api/v1/superadmin", superAdminRouter);
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+});
+
+// Start cron jobs
 endedAuctionCron();
 verifyCommissionCron();
+
+// Connect to the database
 connection();
+
+// Error handling middleware
 app.use(errorMiddleware);
 
 export default app;
