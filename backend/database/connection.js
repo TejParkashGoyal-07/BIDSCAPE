@@ -3,14 +3,12 @@ import mongoose from "mongoose";
 export const connection = () => {
   mongoose
     .connect(process.env.MONGO_URI, {
-      dbName: "MERN_AUCTION_PLATFORM", // Ensure the database name is correct
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      dbName: "MERN_AUCTION_PLATFORM",
     })
     .then(() => {
-      console.log("Connected to the database.");
+      console.log("Connected to database.");
     })
     .catch((err) => {
-      console.error(`Some error occurred while connecting to the database: ${err.message}`);
+      console.log(`Some error occured while connecting to database: ${err}`);
     });
 };
